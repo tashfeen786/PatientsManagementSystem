@@ -1,8 +1,34 @@
 from fastapi import FastAPI, Path, HTTPException, Query
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field, computed_field
+from typing import  Annotated
 import json
 
 
 app = FastAPI()
+
+class patient(BaseModel):
+    id: Annotated[str, Field(description= 'ID of the Patient', example= 'P001')]
+    name: Annotated[str, Field(description= 'Name of the Patient', example= 'John Doe')]
+    age: Annotated[int, Field(description= 'Age of the Patient', example= 30)]
+    height: Annotated[float, Field(description= 'Height of the Patient in cm', example= 175.5)]
+    weight: Annotated[float, Field(description= 'Weight of the Patient in kg', example= 70.0)]
+    
+    @computed_field
+    def bmi(self) -> float:
+        return round(self.weight / ((self.height / 100) ** 2), 2)
+    
+
+    @computed_field
+    def verdict(self) -> str:
+        if self.bmi < 18.5:
+            return 'Underweight'
+        elif 18.5 <= self.bmi < 24.9:
+            return 'Normal weight'
+        elif 25 <= self.bmi < 29.9:
+            return 'Overweight'
+        else:
+            return 'Obesity'
 
 def load_data():
     with open('patiants.json', 'r') as f:
