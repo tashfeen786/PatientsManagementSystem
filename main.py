@@ -124,4 +124,8 @@ def update_patient(patient_id: str, patient_update: PatientUpdate):
     for key, value in updated_patient_info.items():
         existing_patient_info[key] = value
 
-        
+    #existing_patient_info -> pydantic object -> updated bmi + verdict
+    existing_patient_info['id'] = patient_id
+    patient_pydandic_obj = patient(**existing_patient_info)
+    #-> pydantic object -> dict
+    existing_patient_info = patient_pydandic_obj.model_dump(exclude='id')
