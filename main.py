@@ -114,4 +114,7 @@ def create_patient(patient: patient):
 def update_patient(patient_id: str, patient_update: PatientUpdate):
 
     data = load_data()
+    if patient_id not in data:
+        raise HTTPException(status_code=404, detail='Patient not found')
     
+    existing_patient_info = data[patient_id]
