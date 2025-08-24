@@ -129,3 +129,11 @@ def update_patient(patient_id: str, patient_update: PatientUpdate):
     patient_pydandic_obj = patient(**existing_patient_info)
     #-> pydantic object -> dict
     existing_patient_info = patient_pydandic_obj.model_dump(exclude='id')
+
+     # add this dict to data
+    data[patient_id] = existing_patient_info
+
+    # save data
+    save_data(data)
+
+    return JSONResponse(status_code=200, content={'message':'patient updated'})
