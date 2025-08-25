@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Path, HTTPException, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, computed_field
-from typing import  Annotated
+from typing import  Annotated, Optional
 import json
 
 
@@ -29,6 +29,13 @@ class patient(BaseModel):
             return 'Overweight'
         else:
             return 'Obesity'
+        
+
+class PatientUpdate(BaseModel):
+    name: Annotated[str | None, Field(description= 'Name of the Patient', example= 'John Doe')] = None
+    age: Annotated[int | None, Field(description= 'Age of the Patient', example= 30)] = None
+    height: Annotated[float | None, Field(description= 'Height of the Patient in cm', example= 175.5)] = None
+    weight: Annotated[float | None, Field(description= 'Weight of the Patient in kg', example= 70.0)] = None
 
 def load_data():
     with open('patiants.json', 'r') as f:
@@ -137,3 +144,18 @@ def update_patient(patient_id: str, patient_update: PatientUpdate):
     save_data(data)
 
     return JSONResponse(status_code=200, content={'message':'patient updated'})
+
+
+@app.put('/update/{patient_id}')
+def update_patient_partial(patient_id: str, patient_update: PatientUpdate):
+    data = load_data()
+
+    if patient_id not in data:
+        raise HTTPException(status_code=404, detail='Patient not found')
+    
+    existing_patient_info = data[patient_id]
+
+    updated_patient_info = patient_update.model_dump(exclude_unset=True)
+
+    for key, value in updated_patient_info.items():
+        
