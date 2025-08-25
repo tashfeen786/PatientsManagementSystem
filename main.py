@@ -158,4 +158,18 @@ def update_patient_partial(patient_id: str, patient_update: PatientUpdate):
     updated_patient_info = patient_update.model_dump(exclude_unset=True)
 
     for key, value in updated_patient_info.items():
-        
+        existing_patient_info[key] = value
+
+    #existing_patient_info -> pydantic object -> updated bmi + verdict
+    existing_patient_info['id'] = patient_id
+
+    patient_pydandic_obj = patient( **existing_patient_info) 
+
+    #-> pydantic object -> dict
+    existing_patient_info = patient_pydandic_obj.model_dump(exclude='id')
+
+    # add this dict to data
+    data[patient_id] = existing_patient_info
+
+    # save data
+    save_data(data)
